@@ -1,0 +1,35 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  student
+  faculty
+  dean
+  committee
+  registrar
+  vc
+}
+
+model User {
+  id               Int      @id @default(autoincrement())
+  name             String
+  email            String   @unique
+  password         String
+  role             Role
+  studentId        String?
+  school           String?
+  department       String?
+  campus           String?  // 'uppal' | 'bhongir' | null (null = shared role: vc, registrar, faculty)
+  isVerified       Boolean  @default(false)
+  resetToken       String?
+  resetTokenExpiry DateTime?
+  createdAt        DateTime @default(now())
+
+  @@map("auth_users")
+}
