@@ -34,7 +34,13 @@ const Sidebar = () => {
   };
 
   const NavItem = ({ path, label, exact }) => {
-    const active = exact ? location.pathname === path : isActive(path);
+    const [pathPart, hashPart] = path.split('#');
+    const [pPath, pQuery] = pathPart.split('?');
+    const active = exact
+      ? location.pathname === pPath &&
+        (pQuery ? location.search === `?${pQuery}` : !location.search) &&
+        (hashPart ? location.hash === `#${hashPart}` : !location.hash)
+      : isActive(pPath);
     return (
       <button
         className={`nav-item ${active ? 'active' : ''}`}
@@ -78,8 +84,8 @@ const Sidebar = () => {
       {isDirector && <>
         <NavItem path="/dashboard/director" label="Analytics" icon="◐" exact />
         <NavItem path="/grievances"         label="All Grievances" icon="≡" exact />
-        <NavItem path="/grievances?status=pending_director_approval" label="Approvals" icon="✓" exact />
-        <NavItem path="/oversight"          label="Pending Grievances" icon="⏳" exact />
+        <NavItem path="/dashboard/director?view=approvals" label="Approvals" icon="✓" exact />
+        <NavItem path="/grievances?status=submitted" label="Pending Grievances" icon="⏳" exact />
       </>}
 
       {/* Registrar nav */}

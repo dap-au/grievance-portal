@@ -332,7 +332,16 @@ export default function ViceChancellorDashboard() {
             <h3 style={{ fontSize: 16, fontWeight: 700, color: 'var(--gray-800)', marginBottom: 4 }}>Grievances by Category</h3>
             <p style={{ fontSize: 12, color: 'var(--gray-400)', marginBottom: 14 }}>Distribution of cases across all grievance types</p>
             <div style={{ height: 320 }}>
-              <Bar data={categoryBarData} options={baseOptions} />
+              <Bar
+                data={categoryBarData}
+                options={{
+                  ...baseOptions,
+                  plugins: {
+                    ...baseOptions.plugins,
+                    legend: { display: false },
+                  },
+                }}
+              />
             </div>
           </div>
         </div>

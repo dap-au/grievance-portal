@@ -177,13 +177,13 @@ const DeanDashboard = () => {
                 </p>
               </div>
             </div>
-            <button
+            {/* <button
               className="btn btn-outline"
               onClick={downloadCSV}
               style={{ fontSize: 14, gap: 6, flexShrink: 0 }}
             >
               ⬇ Download CSV
-            </button>
+            </button> */}
           </div>
         </div>
 
@@ -261,7 +261,10 @@ const DeanDashboard = () => {
                 {user?.campus ? `${user.campus} campus` : ''} · {allGrievances.length} total
               </span>
             </div>
-            <button className="btn btn-outline btn-sm" onClick={() => navigate('/grievances')}>Browse all</button>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button className="btn btn-outline btn-sm" onClick={downloadCSV} disabled={!allGrievances.length}>Export CSV</button>
+              <button className="btn btn-outline btn-sm" onClick={() => navigate('/grievances')}>Browse all</button>
+            </div>
           </div>
           {activeGrievances.length === 0
             ? <p style={{ color: 'var(--gray-400)', fontSize: 14, padding: '8px 0' }}>No active grievances for your campus.</p>

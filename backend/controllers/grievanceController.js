@@ -322,7 +322,7 @@ const getAllGrievances = async (req, res) => {
   try {
     let query = `
       SELECT g.id, g.ticket_id, g.title, g.category, g.status,
-             g.school, g.department, g.is_confidential,
+             g.campus, g.school, g.department, g.is_confidential,
              g.sla_deadline, g.sla_breached, g.escalation_level,
             g.proof_file_name, g.proof_original_name, g.proof_mime_type, g.proof_file_size,
              g.created_at, g.updated_at,

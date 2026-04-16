@@ -1,4 +1,4 @@
-// frontend/src/pages/RegistrarDashboard.js
+﻿// frontend/src/pages/RegistrarDashboard.js
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
@@ -59,7 +59,7 @@ const RegistrarDashboard = () => {
   };
 
   if (loading) return (
-    <div className="app-layout"><Sidebar /><main className="main-content"><p style={{ color: 'var(--gray-400)' }}>Loadingâ€¦</p></main></div>
+    <div className="app-layout"><Sidebar /><main className="main-content"><p style={{ color: 'var(--gray-400)' }}>Loading...</p></main></div>
   );
 
   const s = stats?.summary || {};
@@ -76,22 +76,14 @@ const RegistrarDashboard = () => {
         <div className="page-header" style={{ borderBottom: '2px solid var(--gray-200)', paddingBottom: 20, marginBottom: 28 }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-              <div style={{
-                width: 48, height: 48, borderRadius: 12,
-                background: 'linear-gradient(135deg, #0f172a, #1e40af)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: 22, color: 'white',
-              }}>ðŸ“‹</div>
               <div>
                 <h1 className="page-title" style={{ fontSize: 26, marginBottom: 2 }}>Registrar Dashboard</h1>
                 <p className="page-sub" style={{ fontSize: 15 }}>
-                  {user?.name} &nbsp;Â·&nbsp; <strong>Registrar</strong>
+                  {user?.name} &nbsp;&middot;&nbsp; <strong>Registrar</strong>
                 </p>
               </div>
             </div>
-            <button className="btn btn-outline" onClick={downloadCSV} style={{ fontSize: 14 }}>
-              â¬‡ Download CSV
-            </button>
+
           </div>
         </div>
 
@@ -117,7 +109,7 @@ const RegistrarDashboard = () => {
             <div>
               <span className="card-title" style={{ fontSize: 17 }}>Approvals Queue</span>
               <span style={{ marginLeft: 10, fontSize: 13, color: 'var(--gray-400)' }}>
-                Non-academic grievances resolved by Dean/Committee â€” awaiting your approval
+                Non-academic grievances resolved by Dean/Committee — awaiting your approval
               </span>
             </div>
             <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--success)', background: '#dcfce7', padding: '4px 12px', borderRadius: 20 }}>
@@ -138,11 +130,11 @@ const RegistrarDashboard = () => {
                       <td><code style={{ fontSize: 13, color: 'var(--accent)' }}>{g.ticket_id}</code></td>
                       <td style={{ maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: 14 }}>{g.title}</td>
                       <td><span className="badge badge-assigned" style={{ textTransform: 'capitalize', fontSize: 13 }}>{g.category?.replace(/_/g, ' ')}</span></td>
-                      <td style={{ fontSize: 13 }}><span style={{ textTransform: 'capitalize' }}>{g.campus || 'â€”'}</span></td>
+                      <td style={{ fontSize: 13 }}><span style={{ textTransform: 'capitalize' }}>{g.campus || '—'}</span></td>
                       <td style={{ maxWidth: 220, fontSize: 13 }}>
                         {g.resolution_confidential
-                          ? <span style={{ color: '#92400e', background: '#fef3c7', padding: '2px 8px', borderRadius: 8, fontSize: 12 }}>ðŸ”’ Confidential</span>
-                          : <span title={g.resolution_note}>{(g.resolution_note || 'â€”').slice(0, 60)}{(g.resolution_note?.length > 60) ? 'â€¦' : ''}</span>
+                          ? <span style={{ color: '#92400e', background: '#fef3c7', padding: '2px 8px', borderRadius: 8, fontSize: 12 }}>🔒 Confidential</span>
+                          : <span title={g.resolution_note}>{(g.resolution_note || '—').slice(0, 60)}{(g.resolution_note?.length > 60) ? '...' : ''}</span>
                         }
                       </td>
                       <td>
@@ -153,7 +145,7 @@ const RegistrarDashboard = () => {
                             onClick={() => handleApprove(g.id)}
                             style={{ fontSize: 13 }}
                           >
-                            {approvingId === g.id ? 'Approvingâ€¦' : 'âœ“ Approve'}
+                            {approvingId === g.id ? 'Approving...' : '✓ Approve'}
                           </button>
                           <button className="btn btn-sm btn-outline" onClick={() => navigate(`/grievances/${g.id}`)} style={{ fontSize: 13 }}>
                             View
@@ -172,7 +164,10 @@ const RegistrarDashboard = () => {
         <div className="card" style={{ marginBottom: 24 }}>
           <div className="card-header">
             <span className="card-title" style={{ fontSize: 17 }}>All Grievances</span>
-            <button className="btn btn-outline btn-sm" onClick={() => navigate('/grievances')}>Browse</button>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button className="btn btn-outline btn-sm" onClick={downloadCSV} disabled={!allGrievances.length}>Export CSV</button>
+              <button className="btn btn-outline btn-sm" onClick={() => navigate('/grievances')}>Browse</button>
+            </div>
           </div>
           {allGrievances.length === 0 ? (
             <p style={{ color: 'var(--gray-400)', fontSize: 15 }}>No grievances found.</p>
@@ -188,7 +183,7 @@ const RegistrarDashboard = () => {
                       <td><code style={{ fontSize: 13, color: 'var(--accent)' }}>{g.ticket_id}</code></td>
                       <td style={{ maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: 14 }}>{g.title}</td>
                       <td style={{ textTransform: 'capitalize', fontSize: 13 }}>{g.category?.replace(/_/g, ' ')}</td>
-                      <td style={{ fontSize: 13, textTransform: 'capitalize' }}>{g.campus || 'â€”'}</td>
+                      <td style={{ fontSize: 13, textTransform: 'capitalize' }}>{g.campus || '—'}</td>
                       <td>{statusBadge(g.status)}</td>
                       <td style={{ fontSize: 13, color: 'var(--gray-400)' }}>{new Date(g.created_at).toLocaleDateString()}</td>
                       <td>
@@ -204,7 +199,7 @@ const RegistrarDashboard = () => {
           )}
         </div>
 
-        {/* Pending â€” submitted & not yet assigned */}
+        {/* Pending - submitted & not yet assigned */}
         <div className="card" style={{ marginBottom: 24 }}>
           <div className="card-header">
             <span className="card-title" style={{ fontSize: 17 }}>Pending Grievances</span>
@@ -224,10 +219,10 @@ const RegistrarDashboard = () => {
                       <td><code style={{ fontSize: 13, color: 'var(--accent)' }}>{g.ticket_id}</code></td>
                       <td style={{ maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: 14 }}>{g.title}</td>
                       <td style={{ textTransform: 'capitalize', fontSize: 13 }}>{g.category?.replace(/_/g, ' ')}</td>
-                      <td style={{ fontSize: 13, textTransform: 'capitalize' }}>{g.campus || 'â€”'}</td>
+                      <td style={{ fontSize: 13, textTransform: 'capitalize' }}>{g.campus || '—'}</td>
                       <td style={{ fontSize: 13, color: 'var(--gray-400)' }}>{new Date(g.created_at).toLocaleDateString()}</td>
                       <td style={{ fontSize: 13, color: g.sla_breached ? 'var(--danger)' : 'var(--gray-400)' }}>
-                        {g.sla_deadline ? new Date(g.sla_deadline).toLocaleDateString() : 'â€”'}
+                        {g.sla_deadline ? new Date(g.sla_deadline).toLocaleDateString() : '—'}
                       </td>
                     </tr>
                   ))}

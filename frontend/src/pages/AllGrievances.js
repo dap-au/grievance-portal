@@ -46,6 +46,33 @@ const AllGrievances = () => {
     g.student_name?.toLowerCase().includes(search.toLowerCase())
   );
 
+  const downloadCSV = () => {
+    if (!filtered.length) return;
+    const headers = ['Ticket ID','Title','Student','Category','Status','Assigned To','SLA Deadline','SLA Breached','Submitted'];
+    const escape = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`;
+    const csvContent = [
+      headers.join(','),
+      ...filtered.map(g => [
+        g.ticket_id,
+        g.title,
+        g.student_name || '',
+        g.category?.replace(/_/g, ' ') || '',
+        g.status?.replace(/_/g, ' ') || '',
+        g.assigned_to_name || '',
+        g.sla_deadline ? new Date(g.sla_deadline).toLocaleDateString() : '',
+        g.sla_breached ? 'Yes' : 'No',
+        new Date(g.created_at).toLocaleDateString(),
+      ].map(escape).join(',')),
+    ].join('\r\n');
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `grievances-${status}-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   const slaColor = (g) => {
     if (!g.sla_deadline) return {};
     const diff = new Date(g.sla_deadline) - new Date();
@@ -112,8 +139,13 @@ const AllGrievances = () => {
         </div>
 
         {/* Summary bar */}
-        <div style={{ fontSize: 13, color: 'var(--gray-400)', marginBottom: 12 }}>
-          Showing {filtered.length} grievance{filtered.length !== 1 ? 's' : ''}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+          <span style={{ fontSize: 13, color: 'var(--gray-400)' }}>
+            Showing {filtered.length} grievance{filtered.length !== 1 ? 's' : ''}
+          </span>
+          <button className="btn btn-outline btn-sm" onClick={downloadCSV} disabled={!filtered.length}>
+            Export CSV
+          </button>
         </div>
 
         {loading

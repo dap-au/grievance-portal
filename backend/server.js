@@ -31,7 +31,12 @@ app.use('/uploads', express.static(uploadsRoot));
 
 app.use('/api/auth', authRoutes);
 app.use('/api/grievances', grievanceRoutes);
-app.use('/api/chat', chatRoutes);
+// chatRoutes is a factory; lazy-init so io is available after Server creation
+let chatRouterInstance = null;
+app.use('/api/chat', (req, res, next) => {
+  if (!chatRouterInstance) chatRouterInstance = chatRoutes(io);
+  chatRouterInstance(req, res, next);
+});
 
 app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
 
@@ -182,9 +187,18 @@ io.use(async (socket, next) => {
 io.on('connection', (socket) => {
   const { id: userId, name: userName, role: userRole } = socket.user;
 
-  // Always join global staff room
-  pool.query(`SELECT id FROM conversations WHERE type = 'global' LIMIT 1`)
-    .then(({ rows }) => { if (rows[0]) socket.join(`conv_${rows[0].id}`); })
+  // Each socket joins its personal room so the server can push room-joins later
+  socket.join(`user_${userId}`);
+
+  // Auto-join ALL conversations this user is a member of (global + DMs)
+  pool.query(
+    `SELECT c.id FROM conversations c
+     JOIN conversation_members cm ON cm.conversation_id = c.id AND cm.user_id = $1
+     UNION
+     SELECT id FROM conversations WHERE type = 'global'`,
+    [userId]
+  )
+    .then(({ rows }) => { rows.forEach((r) => socket.join(`conv_${r.id}`)); })
     .catch(() => {});
 
   socket.on('join_room', (convId) => {

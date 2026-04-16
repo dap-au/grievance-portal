@@ -1,6 +1,6 @@
 ﻿// frontend/src/pages/DirectorDashboard.js
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Sidebar from '../components/shared/Sidebar';
 import api from '../utils/api';
@@ -9,11 +9,21 @@ import toast from 'react-hot-toast';
 const DirectorDashboard = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const [searchParams] = useSearchParams();
+  const viewApprovals = searchParams.get('view') === 'approvals';
   const [stats, setStats] = useState(null);
   const [allGrievances, setAllGrievances] = useState([]);
   const [pendingApprovals, setPendingApprovals] = useState([]);
   const [approvingId, setApprovingId] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!loading && location.hash === '#approvals') {
+      const el = document.getElementById('approvals');
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [location.hash, loading]);
 
   const loadData = () => Promise.all([
     api.get('/grievances/dashboard').then(r => setStats(r.data)).catch(() => {}),
@@ -78,14 +88,6 @@ const DirectorDashboard = () => {
         <div className="page-header" style={{ borderBottom: '2px solid var(--gray-200)', paddingBottom: 20, marginBottom: 28 }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-              <div style={{
-                width: 48, height: 48, borderRadius: 12,
-                background: 'linear-gradient(135deg, #7c3aed, #4f46e5)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: 22, color: 'white',
-              }}>
-                🎓
-              </div>
               <div>
                 <h1 className="page-title" style={{ fontSize: 26, marginBottom: 2 }}>Director Dashboard</h1>
                 <p className="page-sub" style={{ fontSize: 15 }}>
@@ -93,9 +95,6 @@ const DirectorDashboard = () => {
                 </p>
               </div>
             </div>
-            <button className="btn btn-outline" onClick={downloadCSV} style={{ fontSize: 14 }}>
-              ⬇ Download CSV
-            </button>
           </div>
         </div>
 
@@ -115,7 +114,7 @@ const DirectorDashboard = () => {
           ))}
         </div>
 
-        <div className="card" style={{ marginBottom: 24, borderTop: '4px solid #7c3aed' }}>
+        <div id="approvals" className="card" style={{ marginBottom: 24, borderTop: '4px solid #7c3aed' }}>
           <div className="card-header">
             <div>
               <span className="card-title" style={{ fontSize: 17 }}>Academic Approvals Queue</span>
@@ -174,7 +173,10 @@ const DirectorDashboard = () => {
         <div className="card" style={{ marginBottom: 24 }}>
           <div className="card-header">
             <span className="card-title" style={{ fontSize: 17 }}>All Grievances</span>
-            <button className="btn btn-outline btn-sm" onClick={() => navigate('/grievances')}>Browse All</button>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button className="btn btn-outline btn-sm" onClick={downloadCSV} disabled={!allGrievances.length}>Export CSV</button>
+              <button className="btn btn-outline btn-sm" onClick={() => navigate('/grievances')}>Browse All</button>
+            </div>
           </div>
           {allGrievances.length === 0 ? (
             <p style={{ color: 'var(--gray-400)', fontSize: 15 }}>No grievances found.</p>

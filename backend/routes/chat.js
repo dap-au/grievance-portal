@@ -1,6 +1,5 @@
 // backend/routes/chat.js
 const express = require('express');
-const router  = express.Router();
 const { protect, authorize } = require('../middleware/authMiddleware');
 const {
   getStaffUsers,
@@ -12,13 +11,18 @@ const {
 
 const CHAT_ROLES = ['dean', 'registrar', 'faculty', 'committee', 'vc'];
 
-router.use(protect);
-router.use(authorize(CHAT_ROLES));
+// Export a factory so server.js can inject `io`
+module.exports = (io) => {
+  const router = express.Router();
 
-router.get('/staff-users',                        getStaffUsers);
-router.get('/conversations',                      getConversations);
-router.post('/conversations',                     createConversation);
-router.get('/conversations/:id/messages',         getMessages);
-router.post('/messages/:msgId/react',             reactMessage);
+  router.use(protect);
+  router.use(authorize(CHAT_ROLES));
 
-module.exports = router;
+  router.get('/staff-users',                        getStaffUsers);
+  router.get('/conversations',                      getConversations);
+  router.post('/conversations',                     (req, res) => createConversation(req, res, io));
+  router.get('/conversations/:id/messages',         getMessages);
+  router.post('/messages/:msgId/react',             reactMessage);
+
+  return router;
+};

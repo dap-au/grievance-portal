@@ -96,7 +96,7 @@ const getMessages = async (req, res) => {
 };
 
 // ── POST /api/chat/conversations ─────────────────────────────
-const createConversation = async (req, res) => {
+const createConversation = async (req, res, io) => {
   const { name, type, member_ids } = req.body;
   const userId = req.user.id;
 
@@ -134,6 +134,14 @@ const createConversation = async (req, res) => {
         [convId, mid]
       );
     }
+
+    // Auto-join all member sockets to the new conversation room
+    if (io) {
+      allMembers.forEach((mid) => {
+        io.in(`user_${mid}`).socketsJoin(`conv_${convId}`);
+      });
+    }
+
     res.status(201).json({ id: convId, name, type });
   } catch (err) {
     console.error('createConversation error:', err.message);
